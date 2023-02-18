@@ -50,13 +50,13 @@ class Girl:
         
         # キー操作で移動
         if (pyxel.btn(pyxel.KEY_LEFT) or \
-                ((0 <= mx <= 1) and (4 <= my <= 5) and pyxel.btn(pyxel.MOUSE_BUTTON_LEFT))):
+                ((0 <= mx <= 1) and (12 <= my <= 13) and pyxel.btn(pyxel.MOUSE_BUTTON_LEFT))):
             # -3まで徐々に変化
             if -3 < self.dx:
                 self.dx -= 1
             self.pldir = -1
         elif pyxel.btn(pyxel.KEY_RIGHT) or \
-                ((2 <= mx <= 3) and (4 <= my <= 5) and pyxel.btn(pyxel.MOUSE_BUTTON_LEFT)):
+                ((4 <= mx <= 5) and (12 <= my <= 13) and pyxel.btn(pyxel.MOUSE_BUTTON_LEFT)):
             # 3まで徐々に変化
             if self.dx < 3:
                 self.dx += 1
@@ -80,7 +80,7 @@ class Girl:
             if is_floor(self.x, self.y+1) == False : # 床がない時は落下
                 self.jump = 2
             if pyxel.btnp(pyxel.KEY_SPACE) or \
-                ((0 <= mx <= 3) and (6 <= my <= 7) and pyxel.btn(pyxel.MOUSE_BUTTON_LEFT)):
+                ((2 <= mx <= 3) and (10 <= my <= 11) and pyxel.btn(pyxel.MOUSE_BUTTON_LEFT)):
                 self.dy = 8
                 self.jump = 1 # ジャンプ開始
                 pyxel.play(3, 0)
@@ -169,7 +169,7 @@ class EnemyB(Enemy):
 
 class App:
     def __init__(self):
-        pyxel.init(128, 160, title="ZOMBIE HUNTER")
+        pyxel.init(128, 176, title="ZOMBIE HUNTER")
         pyxel.load("zombie_ast.pyxres")
         
         self.enemies = []
