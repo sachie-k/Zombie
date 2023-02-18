@@ -1,1 +1,1 @@
-is_wall
+spawn

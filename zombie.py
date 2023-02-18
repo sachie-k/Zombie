@@ -4,7 +4,7 @@ import random
 TILE_SPAWN1 = (2, 3)
 TILE_SPAWN2 = (0, 3)
 chkpoint = [(2, 0),(6, 0),(2, 7),(6, 7)] # girlの左上からのチェックする座標
-enemies = []
+coin_tile = []
 
 def is_wall(cx, cy):
     c = False
@@ -24,18 +24,6 @@ def is_floor(cx, cy):
 def get_tile(tile_x, tile_y):
     return pyxel.tilemap(0).pget(tile_x, tile_y)
 
-def spawn_enemy(left_x, right_x):
-    left_x = pyxel.ceil(left_x / 8) # x以上の最小の整数を返す
-    right_x = pyxel.floor(right_x / 8) # x以下の最大の整数を返す
-    for x in range(left_x, right_x + 1):
-        for y in range(16):
-            tile = get_tile(x, y)
-            if tile == TILE_SPAWN1:
-                print("spawn")
-                enemies.append(EnemyA(x * 8, y * 8))
-            elif tile == TILE_SPAWN2:
-                enemies.append(EnemyB(x * 8, y * 8))
-            
 def cleanup_list(list):
     i = 0
     while i < len(list):
@@ -44,8 +32,6 @@ def cleanup_list(list):
             i += 1
         else:
             list.pop(i)
-
-
 class Girl:
     def __init__(self, x, y):
         self.x = x
@@ -105,7 +91,7 @@ class Girl:
                 if self.jump == 1: 
                     self.jump = 2 # 壁にぶつかって落下
                 elif self.jump == 2:
-                    self.jump = 0 # 着地　落下終了
+                    self.jump = 0 # 着地(落下終了)
                 break
             self.y -= ud
             loop -= 1
@@ -116,6 +102,7 @@ class Girl:
         if pyxel.tilemap(0).pget(xi, yi) == (1, 1): # コイン
             self.score += 1
             pyxel.tilemap(0).pset(xi, yi, (0, 0))
+            coin_tile.append((xi, yi))
             pyxel.play(3, 1)
         
         return
@@ -123,7 +110,6 @@ class Girl:
     def draw(self):
         pyxel.blt(self.x, self.y, 0, 0, 8, self.pldir*8, 8, 0)
         
-
 class Enemy:
     def __init__(self, x, y):
         self.x = x
@@ -180,21 +166,24 @@ class App:
         pyxel.init(128, 128, title="ZOMBIE HUNTER")
         pyxel.load("zombie_ast.pyxres")
         
+        self.enemies = []
+
         self.girl = Girl(8, 112)
-        spawn_enemy(0, 127)
+        self.spawn_enemy(0, 127)
+        pyxel.playm(0, loop=True)
 
         pyxel.run(self.update, self.draw)
 
     def update(self):
         
         self.girl.update()
-        for enemy in enemies:
+        for enemy in self.enemies:
             if abs(self.girl.x - enemy.x) < 6 and abs(self.girl.y - enemy.y) < 6:
                 self.girl.is_alive = False
                 return
             enemy.update()
             
-        cleanup_list(enemies)
+        cleanup_list(self.enemies)
         
         return
         
@@ -207,18 +196,45 @@ class App:
         
         if self.girl.is_alive == True:
             self.girl.draw()
-            for enemy in enemies:
+            for enemy in self.enemies:
                 enemy.draw()       
             text = "SCORE:{}".format(self.girl.score)
             pyxel.text(45, 6, text, 8)
         else:
             pyxel.text(45, 60, "GAME OVER", 10)
+            pyxel.stop()
+            self.replay()
             
         if self.girl.score == 10:
             pyxel.text(45, 60, "GAME CLEAR", 9)
-        
-        
+            pyxel.stop()
+            self.replay()
+            
         return
-        
+    
+    def spawn_enemy(self, left_x, right_x):
+        left_x = pyxel.ceil(left_x / 8) # x以上の最小の整数を返す
+        right_x = pyxel.floor(right_x / 8) # x以下の最大の整数を返す
+        for x in range(left_x, right_x + 1):
+            for y in range(16):
+                tile = get_tile(x, y)
+                if tile == TILE_SPAWN1:
+                    self.enemies.append(EnemyA(x * 8, y * 8))
+                elif tile == TILE_SPAWN2:
+                    self.enemies.append(EnemyB(x * 8, y * 8))
+            
+    def replay(self):
+        # retry button
+        pyxel.text(45, 100, "> REPLAY", 1)
+                    
+        if pyxel.btnp(pyxel.KEY_RETURN) or \
+            (pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) and (67 <= pyxel.mouse_x <= 99) and (90 <= pyxel.mouse_y <= 106)):
+            self.girl = Girl(8, 112)
+            self.enemies = []
+            self.spawn_enemy(0, 127)
+            for xi, yi in coin_tile:
+                pyxel.tilemap(0).pset(xi, yi, (1, 1))
+            pyxel.playm(0, loop=True)
+            
 
 App()
