@@ -212,7 +212,7 @@ class App:
             self.replay()
             
         if self.girl.score == 10:
-            pyxel.text(45, 60, "GAME CLEAR", 9)
+            pyxel.text(45, 60, "GAME CLEAR", pyxel.frame_count % 16)
             pyxel.stop()
             self.replay()
             
